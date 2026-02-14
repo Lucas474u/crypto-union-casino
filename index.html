@@ -123,6 +123,12 @@
             border: 1px solid var(--border);
             border-radius: 20px;
             padding: 8px 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .balance-widget:active {
+            transform: scale(0.95);
         }
 
         .balance-label {
@@ -471,6 +477,11 @@
             transform: translateX(0);
         }
 
+        .toast.success {
+            background: var(--success);
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+        }
+
         /* Screens */
         .screen {
             display: none;
@@ -519,13 +530,35 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        .refresh-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .refresh-button:active {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .refresh-button i {
+            color: var(--accent);
+        }
     </style>
 </head>
 <body>
     <!-- Loading -->
     <div class="loading" id="loading">
         <div class="spinner"></div>
-        <div class="loading-text" id="loadingText">Загрузка...</div>
+        <div class="loading-text" id="loadingText">Загрузка данных...</div>
     </div>
 
     <div class="app">
@@ -650,9 +683,10 @@
                         </div>
                     </div>
 
-                    <button class="btn-primary" onclick="refreshBalance()" style="margin-top: 10px;">
-                        <i class="fas fa-sync-alt"></i> Обновить баланс
-                    </button>
+                    <div class="refresh-button" onclick="refreshBalance()">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Обновить баланс</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -708,67 +742,77 @@
             document.getElementById('profileId').textContent = `ID: ${userData.id}`;
         }
 
-        // ==================== RECEIVE DATA FROM BOT ====================
-        window.addEventListener('message', function(event) {
-            console.log('Message from bot:', event.data);
-            
-            if (event.data && event.data.type === 'user_data') {
-                // Update user data from bot
-                userData.balance = event.data.balance || 0;
-                userData.games = event.data.games || 0;
-                userData.wins = event.data.wins || 0;
-                userData.profit = event.data.profit || 0;
-                updateUI();
-                
-                document.getElementById('loading').classList.add('hide');
-            }
-            
-            if (event.data && event.data.type === 'balance_updated') {
-                // Balance was updated
-                userData.balance = event.data.balance;
-                updateUI();
-                showToast('💰 Баланс обновлен: $' + userData.balance.toFixed(2));
-            }
-            
-            if (event.data && event.data.type === 'game_result') {
-                // Game result from bot
-                if (event.data.result === 'win') {
-                    userData.balance += event.data.winAmount;
-                    userData.wins++;
-                    userData.profit += event.data.winAmount - event.data.betAmount;
-                    updateUI();
+        // ==================== SEND MESSAGE TO BOT ====================
+        function sendToBot(data) {
+            return new Promise((resolve) => {
+                try {
+                    tg.sendData(JSON.stringify(data));
+                    
+                    // Ждем ответ от бота через postMessage
+                    const messageHandler = (event) => {
+                        if (event.data && event.data.type) {
+                            window.removeEventListener('message', messageHandler);
+                            resolve(event.data);
+                        }
+                    };
+                    
+                    window.addEventListener('message', messageHandler);
+                    
+                    // Таймаут на случай если ответа нет
+                    setTimeout(() => {
+                        window.removeEventListener('message', messageHandler);
+                        resolve(null);
+                    }, 5000);
+                    
+                } catch (error) {
+                    console.error('Error sending to bot:', error);
+                    resolve(null);
                 }
-            }
-        });
+            });
+        }
 
         // ==================== REQUEST USER DATA ====================
-        function requestUserData() {
-            tg.sendData(JSON.stringify({ 
-                action: 'getUserData',
-                userId: userData.id 
-            }));
+        async function requestUserData() {
+            document.getElementById('loadingText').textContent = 'Загрузка баланса...';
+            document.getElementById('loading').classList.remove('hide');
+            
+            try {
+                const response = await sendToBot({ 
+                    action: 'getUserData',
+                    userId: userData.id 
+                });
+                
+                if (response && response.type === 'user_data') {
+                    userData.balance = response.balance || 0;
+                    userData.games = response.games || 0;
+                    userData.wins = response.wins || 0;
+                    userData.profit = response.profit || 0;
+                    updateUI();
+                    
+                    showToast('✅ Баланс загружен', 'success');
+                } else {
+                    // Если нет ответа, используем локальные данные
+                    console.log('No response from bot, using local data');
+                }
+            } catch (error) {
+                console.error('Error requesting user data:', error);
+            } finally {
+                setTimeout(() => {
+                    document.getElementById('loading').classList.add('hide');
+                }, 500);
+            }
         }
 
         // Request initial data
-        setTimeout(requestUserData, 500);
+        setTimeout(requestUserData, 1000);
 
         // ==================== REFRESH BALANCE ====================
-        function refreshBalance() {
-            document.getElementById('loadingText').textContent = 'Обновление баланса...';
-            document.getElementById('loading').classList.remove('hide');
-            
-            tg.sendData(JSON.stringify({ 
-                action: 'getUserData',
-                userId: userData.id 
-            }));
-            
-            setTimeout(() => {
-                document.getElementById('loading').classList.add('hide');
-            }, 1000);
+        async function refreshBalance() {
+            await requestUserData();
         }
 
         // ==================== SEND GAME ACTION TO BOT ====================
-        function sendGameAction(action, data) {
+        async function sendGameAction(action, data) {
             const message = {
                 action: action,
                 ...data,
@@ -778,7 +822,15 @@
             };
             
             console.log('Sending to bot:', message);
-            tg.sendData(JSON.stringify(message));
+            
+            const response = await sendToBot(message);
+            
+            if (response && response.type === 'balance_updated') {
+                userData.balance = response.balance;
+                updateUI();
+            }
+            
+            return response;
         }
 
         // ==================== TIMER ====================
@@ -787,6 +839,8 @@
         let canPlaceBet = false;
 
         function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
             timerSeconds = 10;
             canPlaceBet = false;
             document.getElementById('crashAction').disabled = true;
@@ -862,8 +916,7 @@
             
             for (let x = 0; x <= canvas.width; x += 2) {
                 const progress = x / canvas.width;
-                const multiplier = Math.min(crashGame.currentMultiplier * progress, 10);
-                const y = canvas.height - (multiplier * 20);
+                const y = canvas.height - (crashGame.currentMultiplier * 20 * progress);
                 
                 if (x === 0) {
                     ctx.moveTo(x, Math.max(0, Math.min(canvas.height, y)));
@@ -898,7 +951,7 @@
         }
 
         // Start crash game
-        function crashAction() {
+        async function crashAction() {
             if (!canPlaceBet) {
                 showToast('Дождитесь таймера!');
                 return;
@@ -915,7 +968,7 @@
                 }
 
                 // Send bet to bot
-                sendGameAction('placeBet', {
+                await sendGameAction('placeBet', {
                     game: 'crash',
                     amount: bet,
                     autoCashout: autoCashout
@@ -944,12 +997,12 @@
             }
         }
 
-        function crashCashout() {
+        async function crashCashout() {
             if (!crashGame.isPlaying) return;
             
             const winAmount = crashGame.betAmount * crashGame.currentMultiplier;
             
-            sendGameAction('cashout', {
+            await sendGameAction('cashout', {
                 game: 'crash',
                 amount: winAmount,
                 multiplier: crashGame.currentMultiplier
@@ -967,7 +1020,7 @@
             updateUI();
             resetCrashGame();
             
-            showToast('💰 Выигрыш: $' + winAmount.toFixed(2));
+            showToast('💰 Выигрыш: $' + winAmount.toFixed(2), 'success');
         }
 
         function crashGameOver() {
@@ -1066,7 +1119,7 @@
             }
         }
 
-        function minesAction() {
+        async function minesAction() {
             const minesCount = parseInt(document.getElementById('minesCount').value);
             const bet = parseFloat(document.getElementById('minesBet').value);
 
@@ -1076,7 +1129,7 @@
                     return;
                 }
 
-                sendGameAction('placeBet', {
+                await sendGameAction('placeBet', {
                     game: 'mines',
                     amount: bet,
                     mines: minesCount
@@ -1113,7 +1166,7 @@
             }
         }
 
-        function minesReveal(index) {
+        async function minesReveal(index) {
             if (!minesGame.isActive) return;
             if (minesGame.revealed.includes(index)) return;
 
@@ -1123,7 +1176,7 @@
                 cell.className = 'mine-cell mine';
                 cell.innerHTML = '💣';
                 
-                sendGameAction('gameResult', {
+                await sendGameAction('gameResult', {
                     game: 'mines',
                     result: 'loss',
                     amount: minesGame.betAmount
@@ -1159,12 +1212,12 @@
             }
         }
 
-        function minesCashout() {
+        async function minesCashout() {
             if (!minesGame.isActive) return;
             
             const winAmount = minesGame.betAmount * minesGame.multiplier;
             
-            sendGameAction('gameResult', {
+            await sendGameAction('gameResult', {
                 game: 'mines',
                 result: 'win',
                 amount: winAmount,
@@ -1179,13 +1232,14 @@
             document.getElementById('minesAction').textContent = 'START GAME';
             updateUI();
             
-            showToast('💰 Выигрыш: $' + winAmount.toFixed(2));
+            showToast('💰 Выигрыш: $' + winAmount.toFixed(2), 'success');
         }
 
         // ==================== TOAST ====================
-        function showToast(message) {
+        function showToast(message, type = '') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
+            toast.className = 'toast' + (type ? ' ' + type : '');
             toast.classList.add('show');
             
             setTimeout(() => {
