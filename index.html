@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>UNION CRYPTO CASINO</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Telegram Web App with Bot Token -->
+    <script src="https://telegram.org/js/telegram-web-app.js?token=8559433384:AAFP8cgT-pEoCoiI8gG_4EhQZQa0lNcL30U"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
@@ -480,11 +481,49 @@
         .screen.active {
             display: block;
         }
+
+        /* Loading */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.3s;
+        }
+
+        .loading.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
     <div class="app">
-        <!-- Header (без кнопки пополнения) -->
+        <!-- Header -->
         <div class="header">
             <div class="profile-mini" onclick="switchScreen('profile')">
                 <div class="avatar" id="headerAvatar"></div>
@@ -619,12 +658,20 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        // ==================== TELEGRAM INIT ====================
+        // ==================== TELEGRAM INIT with BOT TOKEN ====================
         const tg = window.Telegram.WebApp;
+        
+        // Initialize with bot token
+        tg.initData = {
+            botToken: '8559433384:AAFP8cgT-pEoCoiI8gG_4EhQZQa0lNcL30U'
+        };
+        
         tg.ready();
         tg.expand();
         tg.setHeaderColor('#0a0c15');
         tg.setBackgroundColor('#0a0c15');
+
+        console.log('Telegram WebApp initialized with bot token');
 
         // ==================== USER DATA from Telegram ====================
         let userData = {
@@ -649,6 +696,8 @@
             userData.username = user.username || user.first_name || 'Player';
             userData.firstName = user.first_name || 'User';
             
+            console.log('User loaded:', userData.username);
+            
             // Set avatar
             let avatarHtml;
             if (user.photo_url) {
@@ -664,9 +713,16 @@
             document.getElementById('profileId').textContent = `ID: ${userData.id}`;
         }
 
+        // Hide loading after initialization
+        setTimeout(() => {
+            document.getElementById('loading').classList.add('hide');
+        }, 500);
+
         // ==================== RECEIVE DATA FROM BOT ====================
         // Listen for messages from bot
         window.addEventListener('message', function(event) {
+            console.log('Message from bot:', event.data);
+            
             if (event.data && event.data.balance !== undefined) {
                 userData.balance = event.data.balance;
                 userData.games = event.data.games || 0;
@@ -675,19 +731,34 @@
                 userData.level = event.data.level || 1;
                 updateUI();
             }
+            
+            // Update players list from bot
+            if (event.data && event.data.players) {
+                activePlayers = event.data.players;
+                renderPlayers();
+            }
         });
 
         // Request initial data from bot
-        tg.sendData(JSON.stringify({ action: 'getUserData' }));
+        setTimeout(() => {
+            tg.sendData(JSON.stringify({ 
+                action: 'getUserData',
+                userId: userData.id 
+            }));
+        }, 1000);
 
         // ==================== SEND GAME ACTION TO BOT ====================
         function sendGameAction(action, data) {
-            tg.sendData(JSON.stringify({
+            const message = {
                 action: action,
                 ...data,
                 userId: userData.id,
+                username: userData.username,
                 timestamp: Date.now()
-            }));
+            };
+            
+            console.log('Sending to bot:', message);
+            tg.sendData(JSON.stringify(message));
         }
 
         // ==================== CRASH GAME ====================
@@ -700,8 +771,7 @@
             canvas: document.getElementById('crashCanvas'),
             ctx: document.getElementById('crashCanvas').getContext('2d'),
             crashPoint: 0,
-            animationFrame: null,
-            players: []
+            animationFrame: null
         };
 
         // Draw crash graph
@@ -719,7 +789,6 @@
                 ctx.beginPath();
                 ctx.moveTo(i, 0);
                 ctx.lineTo(i, canvas.height);
-                ctx.strokeStyle = 'rgba(255,255,255,0.02)';
                 ctx.stroke();
             }
             
@@ -727,7 +796,6 @@
                 ctx.beginPath();
                 ctx.moveTo(0, i);
                 ctx.lineTo(canvas.width, i);
-                ctx.strokeStyle = 'rgba(255,255,255,0.02)';
                 ctx.stroke();
             }
             
@@ -765,7 +833,7 @@
                     crashCashout();
                 }
                 
-                // Random crash
+                // Random crash (1.5x - 8x)
                 if (crashGame.currentMultiplier >= crashGame.crashPoint) {
                     crashGameOver();
                 }
@@ -884,6 +952,9 @@
             }
             
             renderPlayers();
+            
+            // Broadcast to bot
+            sendGameAction('updatePlayers', { players: activePlayers });
         }
 
         function removePlayer(name) {
@@ -1127,7 +1198,17 @@
 
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'ru' : 'en';
-            // Update UI text based on language
+            // Update button text
+            const btn = document.getElementById('crashAction');
+            const status = document.getElementById('crashStatus');
+            
+            if (currentLang === 'ru') {
+                if (btn) btn.textContent = crashGame.gameState === 'waiting' ? 'СТАВКА' : 'ЗАБРАТЬ';
+                if (status) status.textContent = crashGame.gameState === 'waiting' ? 'ОЖИДАНИЕ' : 'ИГРА';
+            } else {
+                if (btn) btn.textContent = crashGame.gameState === 'waiting' ? 'BET' : 'CASHOUT';
+                if (status) status.textContent = crashGame.gameState === 'waiting' ? 'WAITING' : 'RUNNING';
+            }
         }
 
         // ==================== INIT ====================
@@ -1138,6 +1219,8 @@
             
             // Add current user to players list
             addPlayer(userData.username, 0, 0, userData.avatar);
+            
+            console.log('App initialized with bot token:', '8559433384:AAFP8cgT-pEoCoiI8gG_4EhQZQa0lNcL30U');
         };
     </script>
 </body>
