@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UNION CRYPTO CASINO</title>
+    <title>Union Crypto Casino</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -24,7 +24,7 @@
             --accent: #ffffff;
             --border: rgba(255, 255, 255, 0.08);
             --danger: #ff4757;
-            --success: #ffffff;
+            --success: #00ff88;
             --toggle-bg: #1e2130;
         }
 
@@ -60,6 +60,23 @@
             border-bottom: 1px solid var(--border);
             background: var(--bg);
             z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo i {
+            font-size: 24px;
+            color: var(--accent);
+        }
+
+        .logo span {
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: 0.5px;
         }
 
         .profile-mini {
@@ -157,71 +174,6 @@
 
         .nav-btn i {
             font-size: 13px;
-        }
-
-        /* Controls */
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .theme-toggle {
-            width: 44px;
-            height: 28px;
-            background: var(--toggle-bg);
-            border-radius: 30px;
-            position: relative;
-            cursor: pointer;
-            border: 1px solid var(--border);
-        }
-
-        .theme-toggle::after {
-            content: '';
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            background: white;
-            border-radius: 50%;
-            top: 2px;
-            left: 2px;
-            transition: transform 0.2s;
-        }
-
-        .theme-toggle.active::after {
-            transform: translateX(18px);
-        }
-
-        /* Новая стильная кнопка языка */
-        .lang-selector {
-            display: flex;
-            background: var(--toggle-bg);
-            border-radius: 30px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
-
-        .lang-option {
-            padding: 6px 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .lang-option.active {
-            background: var(--accent);
-            color: var(--bg);
-        }
-
-        .lang-option:first-child {
-            border-right: 1px solid var(--border);
         }
 
         /* Content */
@@ -537,6 +489,7 @@
             height: 100%;
             background: var(--bg);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 10000;
@@ -555,6 +508,12 @@
             border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        .loading-text {
+            font-size: 14px;
+            color: var(--text-secondary);
         }
 
         @keyframes spin {
@@ -566,19 +525,17 @@
     <!-- Loading -->
     <div class="loading" id="loading">
         <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Загрузка...</div>
     </div>
 
     <div class="app">
         <!-- Header -->
         <div class="header">
-            <div class="profile-mini" onclick="switchScreen('profile')">
-                <div class="avatar" id="headerAvatar"></div>
-                <div class="user-info">
-                    <h4 id="headerName">Loading...</h4>
-                    <div class="level" id="headerLevel">LVL 1</div>
-                </div>
+            <div class="logo">
+                <i class="fas fa-dice"></i>
+                <span>UNION CRYPTO CASINO</span>
             </div>
-            <div class="balance-widget">
+            <div class="balance-widget" onclick="refreshBalance()">
                 <div class="balance-label">BALANCE</div>
                 <div class="balance-value" id="headerBalance">0.00</div>
             </div>
@@ -594,19 +551,6 @@
             </div>
             <div class="nav-btn" onclick="switchScreen('profile')">
                 <i class="fas fa-user"></i> PROFILE
-            </div>
-        </div>
-
-        <!-- Controls -->
-        <div class="controls">
-            <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()"></div>
-            <div class="lang-selector" id="langSelector">
-                <div class="lang-option active" onclick="setLanguage('en')">
-                    <span>🇺🇸</span> EN
-                </div>
-                <div class="lang-option" onclick="setLanguage('ru')">
-                    <span>🇷🇺</span> RU
-                </div>
             </div>
         </div>
 
@@ -630,7 +574,7 @@
                     </div>
                 </div>
 
-                <!-- REAL PLAYERS from Telegram -->
+                <!-- REAL PLAYERS -->
                 <div class="players-list" id="playersList">
                     <div class="players-header">
                         <span>REAL PLAYERS</span>
@@ -689,8 +633,8 @@
 
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px;">
                         <div style="background: rgba(255,255,255,0.03); border-radius: 16px; padding: 14px;">
-                            <div style="font-size: 11px; color: var(--text-secondary);">Level</div>
-                            <div class="mono" style="font-size: 24px; color: var(--accent);" id="profileLevel">1</div>
+                            <div style="font-size: 11px; color: var(--text-secondary);">Balance</div>
+                            <div class="mono" style="font-size: 24px; color: var(--accent);" id="profileBalance">0.00</div>
                         </div>
                         <div style="background: rgba(255,255,255,0.03); border-radius: 16px; padding: 14px;">
                             <div style="font-size: 11px; color: var(--text-secondary);">Games</div>
@@ -705,6 +649,10 @@
                             <div class="mono" style="font-size: 24px; color: var(--accent);" id="profileProfit">0.00</div>
                         </div>
                     </div>
+
+                    <button class="btn-primary" onclick="refreshBalance()" style="margin-top: 10px;">
+                        <i class="fas fa-sync-alt"></i> Обновить баланс
+                    </button>
                 </div>
             </div>
         </div>
@@ -723,20 +671,19 @@
 
         console.log('Telegram WebApp initialized');
 
-        // ==================== USER DATA from Telegram ====================
+        // ==================== USER DATA ====================
         let userData = {
             id: null,
             username: 'Player',
             firstName: 'User',
             balance: 0.00,
-            level: 1,
             games: 0,
             wins: 0,
             profit: 0.00,
             avatar: null
         };
 
-        // ==================== REAL PLAYERS from Telegram ====================
+        // ==================== REAL PLAYERS ====================
         let activePlayers = [];
 
         // Load user from Telegram
@@ -756,46 +703,69 @@
                 avatarHtml = userData.firstName.charAt(0).toUpperCase();
             }
             
-            document.getElementById('headerAvatar').innerHTML = avatarHtml;
             document.getElementById('profileAvatar').innerHTML = avatarHtml;
-            document.getElementById('headerName').textContent = userData.username;
             document.getElementById('profileName').textContent = userData.username;
             document.getElementById('profileId').textContent = `ID: ${userData.id}`;
         }
 
-        // Hide loading after initialization
-        setTimeout(() => {
-            document.getElementById('loading').classList.add('hide');
-        }, 500);
-
         // ==================== RECEIVE DATA FROM BOT ====================
-        // Listen for messages from bot
         window.addEventListener('message', function(event) {
             console.log('Message from bot:', event.data);
             
-            if (event.data && event.data.balance !== undefined) {
-                userData.balance = event.data.balance;
+            if (event.data && event.data.type === 'user_data') {
+                // Update user data from bot
+                userData.balance = event.data.balance || 0;
                 userData.games = event.data.games || 0;
                 userData.wins = event.data.wins || 0;
                 userData.profit = event.data.profit || 0;
-                userData.level = event.data.level || 1;
                 updateUI();
+                
+                document.getElementById('loading').classList.add('hide');
             }
             
-            // Update players list from bot
-            if (event.data && event.data.players) {
-                activePlayers = event.data.players;
-                renderPlayers();
+            if (event.data && event.data.type === 'balance_updated') {
+                // Balance was updated
+                userData.balance = event.data.balance;
+                updateUI();
+                showToast('💰 Баланс обновлен: $' + userData.balance.toFixed(2));
+            }
+            
+            if (event.data && event.data.type === 'game_result') {
+                // Game result from bot
+                if (event.data.result === 'win') {
+                    userData.balance += event.data.winAmount;
+                    userData.wins++;
+                    userData.profit += event.data.winAmount - event.data.betAmount;
+                    updateUI();
+                }
             }
         });
 
-        // Request initial data from bot
-        setTimeout(() => {
+        // ==================== REQUEST USER DATA ====================
+        function requestUserData() {
             tg.sendData(JSON.stringify({ 
                 action: 'getUserData',
                 userId: userData.id 
             }));
-        }, 1000);
+        }
+
+        // Request initial data
+        setTimeout(requestUserData, 500);
+
+        // ==================== REFRESH BALANCE ====================
+        function refreshBalance() {
+            document.getElementById('loadingText').textContent = 'Обновление баланса...';
+            document.getElementById('loading').classList.remove('hide');
+            
+            tg.sendData(JSON.stringify({ 
+                action: 'getUserData',
+                userId: userData.id 
+            }));
+            
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hide');
+            }, 1000);
+        }
 
         // ==================== SEND GAME ACTION TO BOT ====================
         function sendGameAction(action, data) {
@@ -820,7 +790,7 @@
             timerSeconds = 10;
             canPlaceBet = false;
             document.getElementById('crashAction').disabled = true;
-            document.getElementById('crashAction').textContent = currentLang === 'en' ? 'WAITING...' : 'ОЖИДАНИЕ...';
+            document.getElementById('crashAction').textContent = 'WAITING...';
             
             updateTimerDisplay();
             
@@ -832,8 +802,8 @@
                     clearInterval(timerInterval);
                     canPlaceBet = true;
                     document.getElementById('crashAction').disabled = false;
-                    document.getElementById('crashAction').textContent = currentLang === 'en' ? 'PLACE BET' : 'СДЕЛАТЬ СТАВКУ';
-                    document.getElementById('timerLabel').textContent = currentLang === 'en' ? 'BET NOW!' : 'СТАВКА!';
+                    document.getElementById('crashAction').textContent = 'PLACE BET';
+                    document.getElementById('timerLabel').textContent = 'BET NOW!';
                 }
             }, 1000);
         }
@@ -841,7 +811,7 @@
         function updateTimerDisplay() {
             document.getElementById('timerDisplay').textContent = timerSeconds;
             if (timerSeconds > 0) {
-                document.getElementById('timerLabel').textContent = currentLang === 'en' ? 'WAITING FOR PLAYERS' : 'ОЖИДАНИЕ ИГРОКОВ';
+                document.getElementById('timerLabel').textContent = 'WAITING FOR PLAYERS';
             }
         }
 
@@ -930,7 +900,7 @@
         // Start crash game
         function crashAction() {
             if (!canPlaceBet) {
-                showToast(currentLang === 'en' ? 'Wait for timer!' : 'Дождитесь таймера!');
+                showToast('Дождитесь таймера!');
                 return;
             }
 
@@ -940,7 +910,7 @@
             if (crashGame.gameState === 'waiting') {
                 // Check balance
                 if (bet > userData.balance) {
-                    showToast(currentLang === 'en' ? 'Insufficient balance!' : 'Недостаточно средств!');
+                    showToast('Недостаточно средств!');
                     return;
                 }
 
@@ -963,11 +933,11 @@
                 crashGame.crashPoint = 1.5 + Math.random() * 6.5;
                 crashGame.currentMultiplier = 1.00;
 
-                document.getElementById('crashAction').textContent = currentLang === 'en' ? 'CASHOUT' : 'ЗАБРАТЬ';
-                document.getElementById('crashStatus').textContent = currentLang === 'en' ? 'RUNNING' : 'ИГРА';
+                document.getElementById('crashAction').textContent = 'CASHOUT';
+                document.getElementById('crashStatus').textContent = 'RUNNING';
 
                 // Add current player to list
-                addPlayer(userData.username, bet, 0, userData.avatar);
+                addPlayer(userData.username, bet, 0, null);
 
             } else if (crashGame.gameState === 'running') {
                 crashCashout();
@@ -992,30 +962,34 @@
             crashGame.isPlaying = false;
             crashGame.gameState = 'cashed';
             
-            document.getElementById('crashStatus').textContent = currentLang === 'en' ? 'CASHED' : 'ЗАБРАНО';
+            document.getElementById('crashStatus').textContent = 'CASHED';
             
             updateUI();
             resetCrashGame();
+            
+            showToast('💰 Выигрыш: $' + winAmount.toFixed(2));
         }
 
         function crashGameOver() {
             crashGame.isPlaying = false;
             crashGame.gameState = 'crashed';
             
-            document.getElementById('crashStatus').textContent = currentLang === 'en' ? 'CRASHED' : 'КРАШ';
+            document.getElementById('crashStatus').textContent = 'CRASHED';
             document.getElementById('crashMultiplier').style.color = '#ff4757';
             
             resetCrashGame();
+            
+            showToast('💥 Краш!');
         }
 
         function resetCrashGame() {
             setTimeout(() => {
                 crashGame.gameState = 'waiting';
                 crashGame.currentMultiplier = 1.00;
-                document.getElementById('crashAction').textContent = currentLang === 'en' ? 'PLACE BET' : 'СДЕЛАТЬ СТАВКУ';
+                document.getElementById('crashAction').textContent = 'PLACE BET';
                 document.getElementById('crashMultiplier').textContent = '1.00x';
                 document.getElementById('crashMultiplier').style.color = '';
-                document.getElementById('crashStatus').textContent = currentLang === 'en' ? 'WAITING' : 'ОЖИДАНИЕ';
+                document.getElementById('crashStatus').textContent = 'WAITING';
                 updateUI();
                 
                 // Restart timer
@@ -1042,8 +1016,6 @@
             }
             
             renderPlayers();
-            
-            sendGameAction('updatePlayers', { players: activePlayers });
         }
 
         function renderPlayers() {
@@ -1100,7 +1072,7 @@
 
             if (!minesGame.isActive) {
                 if (bet > userData.balance) {
-                    showToast(currentLang === 'en' ? 'Insufficient balance!' : 'Недостаточно средств!');
+                    showToast('Недостаточно средств!');
                     return;
                 }
 
@@ -1128,7 +1100,7 @@
                     }
                 }
 
-                document.getElementById('minesAction').textContent = currentLang === 'en' ? 'CASHOUT' : 'ЗАБРАТЬ';
+                document.getElementById('minesAction').textContent = 'CASHOUT';
                 document.getElementById('minesMultiplier').textContent = '1.00x';
                 
                 document.querySelectorAll('.mine-cell').forEach(cell => {
@@ -1158,7 +1130,7 @@
                 });
 
                 minesGame.isActive = false;
-                document.getElementById('minesAction').textContent = currentLang === 'en' ? 'START GAME' : 'НАЧАТЬ';
+                document.getElementById('minesAction').textContent = 'START GAME';
                 
                 minesGame.minePositions.forEach(pos => {
                     const mineCell = document.querySelector(`.mine-cell[data-index="${pos}"]`);
@@ -1167,6 +1139,8 @@
                         mineCell.innerHTML = '💣';
                     }
                 });
+                
+                showToast('💥 Вы проиграли $' + minesGame.betAmount.toFixed(2));
 
             } else {
                 minesGame.revealed.push(index);
@@ -1202,8 +1176,10 @@
             userData.profit += winAmount - minesGame.betAmount;
             
             minesGame.isActive = false;
-            document.getElementById('minesAction').textContent = currentLang === 'en' ? 'START GAME' : 'НАЧАТЬ';
+            document.getElementById('minesAction').textContent = 'START GAME';
             updateUI();
+            
+            showToast('💰 Выигрыш: $' + winAmount.toFixed(2));
         }
 
         // ==================== TOAST ====================
@@ -1238,64 +1214,12 @@
 
         function updateUI() {
             document.getElementById('headerBalance').textContent = userData.balance.toFixed(2);
-            document.getElementById('profileLevel').textContent = userData.level;
+            document.getElementById('profileBalance').textContent = userData.balance.toFixed(2);
             document.getElementById('profileGames').textContent = userData.games;
             document.getElementById('profileWinRate').textContent = userData.games > 0 
                 ? Math.round((userData.wins / userData.games) * 100) + '%' 
                 : '0%';
             document.getElementById('profileProfit').textContent = userData.profit.toFixed(2);
-        }
-
-        // ==================== THEME ====================
-        let currentTheme = 'dark';
-
-        function toggleTheme() {
-            const themeToggle = document.getElementById('themeToggle');
-            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            document.documentElement.style.setProperty('--bg', currentTheme === 'dark' ? '#0a0c15' : '#f0f2f5');
-            document.documentElement.style.setProperty('--bg-secondary', currentTheme === 'dark' ? '#11131f' : '#ffffff');
-            document.documentElement.style.setProperty('--card', currentTheme === 'dark' ? 'rgba(17,19,31,0.95)' : 'rgba(255,255,255,0.95)');
-            document.documentElement.style.setProperty('--text', currentTheme === 'dark' ? '#ffffff' : '#0a0c15');
-            document.documentElement.style.setProperty('--text-secondary', currentTheme === 'dark' ? '#7e8aa8' : '#6b7a99');
-            document.documentElement.style.setProperty('--border', currentTheme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)');
-            document.documentElement.style.setProperty('--toggle-bg', currentTheme === 'dark' ? '#1e2130' : '#e0e4ec');
-            
-            themeToggle.classList.toggle('active', currentTheme === 'light');
-            
-            if (tg) {
-                tg.setHeaderColor(currentTheme === 'dark' ? '#0a0c15' : '#f0f2f5');
-                tg.setBackgroundColor(currentTheme === 'dark' ? '#0a0c15' : '#f0f2f5');
-            }
-        }
-
-        // ==================== LANGUAGE ====================
-        let currentLang = 'en';
-
-        function setLanguage(lang) {
-            currentLang = lang;
-            
-            document.querySelectorAll('.lang-option').forEach(opt => {
-                opt.classList.toggle('active', opt.textContent.includes(lang.toUpperCase()));
-            });
-            
-            // Update UI text
-            const crashAction = document.getElementById('crashAction');
-            const crashStatus = document.getElementById('crashStatus');
-            const minesAction = document.getElementById('minesAction');
-            const timerLabel = document.getElementById('timerLabel');
-            
-            if (lang === 'ru') {
-                if (crashAction) crashAction.textContent = crashGame.gameState === 'waiting' ? 'СДЕЛАТЬ СТАВКУ' : 'ЗАБРАТЬ';
-                if (crashStatus) crashStatus.textContent = crashGame.gameState === 'waiting' ? 'ОЖИДАНИЕ' : 'ИГРА';
-                if (minesAction) minesAction.textContent = minesGame.isActive ? 'ЗАБРАТЬ' : 'НАЧАТЬ';
-                if (timerLabel) timerLabel.textContent = timerSeconds > 0 ? 'ОЖИДАНИЕ ИГРОКОВ' : 'СТАВКА!';
-            } else {
-                if (crashAction) crashAction.textContent = crashGame.gameState === 'waiting' ? 'PLACE BET' : 'CASHOUT';
-                if (crashStatus) crashStatus.textContent = crashGame.gameState === 'waiting' ? 'WAITING' : 'RUNNING';
-                if (minesAction) minesAction.textContent = minesGame.isActive ? 'CASHOUT' : 'START GAME';
-                if (timerLabel) timerLabel.textContent = timerSeconds > 0 ? 'WAITING FOR PLAYERS' : 'BET NOW!';
-            }
         }
 
         // ==================== INIT ====================
@@ -1304,8 +1228,6 @@
             updateCrashGame();
             updateUI();
             startTimer();
-            
-            addPlayer(userData.username, 0, 0, userData.avatar);
             
             console.log('App initialized');
         };
