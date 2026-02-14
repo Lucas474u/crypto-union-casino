@@ -1,816 +1,1073 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Union Crypto Casino</title>
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Fonts and Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <!-- Framer Motion via CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0a0b0e 0%, #1a1f2e 100%);
+            background: linear-gradient(145deg, #0d0f1a 0%, #1a1f33 100%);
             color: #ffffff;
             min-height: 100vh;
-            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
             position: relative;
+            overflow-x: hidden;
         }
 
-        /* Animated background particles */
-        .particle {
+        /* Анимированный фон */
+        .bg-orbs {
             position: fixed;
-            width: 2px;
-            height: 2px;
-            background: rgba(255, 215, 0, 0.3);
-            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
             pointer-events: none;
-            animation: float 20s infinite linear;
+            z-index: 0;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: #ffd700;
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: #ff8c00;
+            bottom: -150px;
+            left: -150px;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 200px;
+            height: 200px;
+            background: #ff4500;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
         }
 
         @keyframes float {
-            from {
-                transform: translateY(100vh) translateX(0);
-            }
-            to {
-                transform: translateY(-100vh) translateX(100vw);
-            }
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.1); }
+            50% { transform: translate(-20px, 20px) scale(0.9); }
+            75% { transform: translate(-30px, -20px) scale(1.05); }
         }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 215, 0, 0.1);
-            border-radius: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .glow-effect {
+        /* Основной контейнер */
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 10;
+            border-radius: 32px;
+            background: rgba(20, 25, 40, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
             transition: all 0.3s ease;
         }
 
-        .glow-effect:hover {
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-            transform: translateY(-2px);
+        /* Шапка */
+        .app-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .neon-border {
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #0d0f1a;
+            transform: rotate(10deg);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 40px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .user-chip i {
+            color: #ffd700;
+            font-size: 12px;
+        }
+
+        /* Баланс */
+        .balance-card {
+            margin: 16px 20px 20px;
+            padding: 20px;
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.3), rgba(255, 215, 0, 0.05));
+            border-radius: 24px;
+            border: 1px solid rgba(255, 215, 0, 0.15);
             position: relative;
             overflow: hidden;
         }
 
-        .neon-border::before {
+        .balance-card::before {
             content: '';
             position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700);
-            border-radius: 26px;
-            z-index: -1;
-            animation: borderGlow 3s linear infinite;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
         }
 
-        .neon-border:hover::before {
-            opacity: 1;
-        }
-
-        @keyframes borderGlow {
-            0% { filter: hue-rotate(0deg); }
-            100% { filter: hue-rotate(360deg); }
-        }
-
-        .pulse-animation {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .spin-animation {
-            animation: spin 10s linear infinite;
-        }
-
-        @keyframes spin {
+        @keyframes rotate {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
-        .game-card {
-            background: rgba(26, 31, 46, 0.9);
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            border-radius: 20px;
-            padding: 20px;
-            transition: all 0.3s ease;
-            cursor: pointer;
+        .balance-label {
+            font-size: 14px;
+            color: #a0a0a0;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .game-card:hover {
-            border-color: #FFD700;
-            transform: scale(1.02);
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+        .balance-amount {
+            font-size: 40px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .balance-usd {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Кнопки действий */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 0 20px 24px;
+        }
+
+        .action-btn {
+            padding: 16px;
+            border-radius: 20px;
+            border: none;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #0d0f1a;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .action-btn.primary:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            color: #fff;
+        }
+
+        .action-btn.secondary:active {
+            background: rgba(255, 215, 0, 0.1);
+            transform: scale(0.97);
+        }
+
+        /* Статистика */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 0 20px 24px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
         }
 
         .stat-value {
             font-size: 24px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffd700, #ffa500);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            border: none;
-            border-radius: 16px;
-            padding: 16px 32px;
-            font-weight: 700;
-            color: #0a0b0e;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 16px;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        .stat-label {
+            font-size: 12px;
+            color: #888;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            border-radius: 16px;
-            padding: 14px 28px;
-            font-weight: 600;
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 215, 0, 0.1);
-            border-color: #FFD700;
-        }
-
-        .input-field {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            border-radius: 16px;
-            padding: 16px;
-            color: #fff;
-            font-size: 16px;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: #FFD700;
-            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.1);
-        }
-
-        .chip {
-            background: linear-gradient(135deg, #2a2f3f, #1a1f2e);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            border-radius: 40px;
-            padding: 10px 20px;
-            display: inline-flex;
+        /* Заголовок раздела */
+        .section-title {
+            display: flex;
             align-items: center;
             gap: 8px;
+            margin: 0 20px 16px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .section-title i {
+            color: #ffd700;
+        }
+
+        /* Сетка игр */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 0 20px 30px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: 20px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .game-card:active {
+            transform: scale(0.97);
+            background: rgba(255, 215, 0, 0.05);
+            border-color: #ffd700;
+        }
+
+        .game-emoji {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .game-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .game-multiplier {
+            font-size: 12px;
+            color: #ffd700;
+        }
+
+        /* Экраны */
+        .screen {
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Кнопка назад */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #ffd700;
+            font-size: 14px;
+            margin: 16px 20px;
+            cursor: pointer;
+            padding: 8px 0;
+        }
+
+        .back-btn i {
+            font-size: 12px;
+        }
+
+        /* Элементы игры */
+        .game-detail {
+            padding: 0 20px;
+        }
+
+        .game-header {
+            text-align: center;
+            padding: 24px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 24px;
+            margin-bottom: 24px;
+        }
+
+        .game-header-emoji {
+            font-size: 64px;
+            margin-bottom: 12px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .game-header-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .game-header-balance {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .bet-section {
+            margin-bottom: 24px;
+        }
+
+        .bet-label {
+            display: block;
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .bet-input {
+            width: 100%;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 16px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .bet-input:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        .bet-quick {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .bet-quick-btn {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bet-quick-btn:active {
+            background: rgba(255, 215, 0, 0.1);
+            transform: scale(0.95);
+        }
+
+        .outcomes-section {
+            margin-bottom: 24px;
+        }
+
+        .outcome-btn {
+            width: 100%;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: 16px;
+            color: #fff;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .outcome-btn.selected {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.2));
+            border-color: #ffd700;
+        }
+
+        .outcome-btn:active {
+            transform: scale(0.98);
+        }
+
+        .outcome-odds {
+            color: #ffd700;
             font-weight: 600;
         }
 
-        .chip i {
-            color: #FFD700;
+        .play-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border: none;
+            border-radius: 20px;
+            color: #0d0f1a;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 16px;
         }
 
-        .floating-icon {
-            position: absolute;
-            opacity: 0.1;
+        .play-btn:active {
+            transform: scale(0.97);
+        }
+
+        .play-btn:disabled {
+            opacity: 0.5;
             pointer-events: none;
+        }
+
+        /* Анимация броска */
+        .dice-animation {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .dice {
+            font-size: 80px;
+            animation: roll 0.5s infinite;
+            display: inline-block;
+        }
+
+        @keyframes roll {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(90deg) scale(1.1); }
+            50% { transform: rotate(180deg) scale(1); }
+            75% { transform: rotate(270deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .result-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .result-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+        }
+
+        .result-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .result-win {
+            color: #ffd700;
+        }
+
+        .result-lose {
+            color: #888;
+        }
+
+        .result-amount {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 32px;
+        }
+
+        .result-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Главный экран -->
+        <div id="home-screen" class="screen active">
+            <div class="app-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-dice"></i>
+                    </div>
+                    <span class="logo-text">UNION</span>
+                </div>
+                <div class="user-chip" id="user-chip">
+                    <i class="fas fa-user"></i>
+                    <span id="username">Player</span>
+                </div>
+            </div>
+
+            <div class="balance-card">
+                <div class="balance-label">
+                    <i class="fas fa-coins" style="color: #ffd700;"></i>
+                    Ваш баланс
+                </div>
+                <div class="balance-amount" id="balance">$1,247.32</div>
+                <div class="balance-usd">≈ $1,247.32 USDT</div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn primary" onclick="showScreen('deposit-screen')">
+                    <i class="fas fa-plus-circle"></i>
+                    Пополнить
+                </button>
+                <button class="action-btn secondary" onclick="showScreen('withdraw-screen')">
+                    <i class="fas fa-arrow-up"></i>
+                    Вывод
+                </button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="games-count">47</div>
+                    <div class="stat-label">Игр</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="wins-count">23</div>
+                    <div class="stat-label">Побед</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="winrate">49%</div>
+                    <div class="stat-label">Винрейт</div>
+                </div>
+            </div>
+
+            <div class="section-title">
+                <i class="fas fa-dice-d6"></i>
+                <span>Игры</span>
+            </div>
+
+            <div class="games-grid">
+                <div class="game-card" onclick="selectGame('basketball')">
+                    <div class="game-emoji">🏀</div>
+                    <div class="game-name">Баскетбол</div>
+                    <div class="game-multiplier">x2.5</div>
+                </div>
+                <div class="game-card" onclick="selectGame('football')">
+                    <div class="game-emoji">⚽</div>
+                    <div class="game-name">Футбол</div>
+                    <div class="game-multiplier">x2.2</div>
+                </div>
+                <div class="game-card" onclick="selectGame('dice')">
+                    <div class="game-emoji">🎲</div>
+                    <div class="game-name">Кости</div>
+                    <div class="game-multiplier">x1.5</div>
+                </div>
+                <div class="game-card" onclick="selectGame('bowling')">
+                    <div class="game-emoji">🎳</div>
+                    <div class="game-name">Боулинг</div>
+                    <div class="game-multiplier">x4.0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран игры -->
+        <div id="game-screen" class="screen">
+            <div class="back-btn" onclick="showScreen('home-screen')">
+                <i class="fas fa-arrow-left"></i>
+                Назад
+            </div>
+
+            <div id="game-content" class="game-detail"></div>
+        </div>
+
+        <!-- Экран результата -->
+        <div id="result-screen" class="screen">
+            <div id="result-content" class="result-screen"></div>
+        </div>
+
+        <!-- Экран пополнения -->
+        <div id="deposit-screen" class="screen">
+            <div class="back-btn" onclick="showScreen('home-screen')">
+                <i class="fas fa-arrow-left"></i>
+                Назад
+            </div>
+
+            <div class="game-detail">
+                <div class="game-header">
+                    <div class="game-header-emoji">💳</div>
+                    <div class="game-header-title">Пополнение</div>
+                </div>
+
+                <div class="bet-section">
+                    <label class="bet-label">Способ оплаты</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+                        <button class="action-btn secondary" style="padding: 16px;" onclick="setPaymentMethod('crypto')">
+                            <i class="fab fa-bitcoin" style="color: #ffd700;"></i>
+                            Crypto
+                        </button>
+                        <button class="action-btn secondary" style="padding: 16px;" onclick="setPaymentMethod('stars')">
+                            <i class="fas fa-star" style="color: #ffd700;"></i>
+                            Stars
+                        </button>
+                    </div>
+
+                    <label class="bet-label">Сумма</label>
+                    <input type="number" id="deposit-amount" class="bet-input" value="10" min="1" step="1">
+                    
+                    <div class="bet-quick" style="margin-bottom: 24px;">
+                        <button class="bet-quick-btn" onclick="setDepositAmount(10)">$10</button>
+                        <button class="bet-quick-btn" onclick="setDepositAmount(25)">$25</button>
+                        <button class="bet-quick-btn" onclick="setDepositAmount(50)">$50</button>
+                        <button class="bet-quick-btn" onclick="setDepositAmount(100)">$100</button>
+                    </div>
+
+                    <button class="play-btn" onclick="processDeposit()">
+                        Пополнить
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран вывода -->
+        <div id="withdraw-screen" class="screen">
+            <div class="back-btn" onclick="showScreen('home-screen')">
+                <i class="fas fa-arrow-left"></i>
+                Назад
+            </div>
+
+            <div class="game-detail">
+                <div class="game-header">
+                    <div class="game-header-emoji">💸</div>
+                    <div class="game-header-title">Вывод средств</div>
+                </div>
+
+                <div class="bet-section">
+                    <label class="bet-label">Сумма (мин. $10)</label>
+                    <input type="number" id="withdraw-amount" class="bet-input" value="10" min="10">
+                    
+                    <label class="bet-label">Адрес USDT (TRC20)</label>
+                    <input type="text" id="wallet-address" class="bet-input" placeholder="T...">
+
+                    <button class="play-btn" onclick="processWithdraw()">
+                        Отправить заявку
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const { useState, useEffect } = React;
-        const { motion, AnimatePresence } = window.framerMotion;
+        // Telegram Web App
+        let tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            tg.setHeaderColor('#0d0f1a');
+            tg.setBackgroundColor('#0d0f1a');
+        }
 
-        // Particle background generator
-        const Particles = () => {
-            const particles = [];
-            for (let i = 0; i < 50; i++) {
-                particles.push(
-                    <div
-                        key={i}
-                        className="particle"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            animationDelay: `${Math.random() * 20}s`,
-                            animationDuration: `${15 + Math.random() * 10}s`,
-                            width: `${1 + Math.random() * 3}px`,
-                            height: `${1 + Math.random() * 3}px`,
-                            background: `rgba(255, ${215 + Math.random() * 40}, 0, ${0.1 + Math.random() * 0.3})`
-                        }}
-                    />
-                );
-            }
-            return particles;
+        // Данные пользователя
+        let userData = {
+            username: 'Player',
+            balance: 1247.32,
+            games: 47,
+            wins: 23,
+            winRate: 49
         };
 
-        const App = () => {
-            const [view, setView] = useState('home');
-            const [balance, setBalance] = useState(1247.32);
-            const [username, setUsername] = useState('');
-            const [gameData, setGameData] = useState({
-                type: '',
-                bet: 0,
-                outcome: ''
+        // Текущая игра
+        let currentGame = null;
+        let selectedOutcome = null;
+        let betAmount = 10;
+        let paymentMethod = 'crypto';
+
+        // Конфигурация игр
+        const games = {
+            basketball: {
+                name: '🏀 Баскетбол',
+                emoji: '🏀',
+                outcomes: [
+                    { name: 'Мимо', odds: 1.8 },
+                    { name: '3-очковый', odds: 2.5 }
+                ]
+            },
+            football: {
+                name: '⚽ Футбол',
+                emoji: '⚽',
+                outcomes: [
+                    { name: 'Мимо', odds: 1.7 },
+                    { name: 'Гол', odds: 2.2 }
+                ]
+            },
+            dice: {
+                name: '🎲 Кости',
+                emoji: '🎲',
+                outcomes: [
+                    { name: '1-3', odds: 1.5 },
+                    { name: '4-6', odds: 1.5 }
+                ]
+            },
+            bowling: {
+                name: '🎳 Боулинг',
+                emoji: '🎳',
+                outcomes: [
+                    { name: 'Мимо', odds: 1.6 },
+                    { name: '3-4 кегли', odds: 2.2 },
+                    { name: '5 кеглей', odds: 3.0 },
+                    { name: 'Страйк', odds: 4.0 }
+                ]
+            }
+        };
+
+        // Инициализация
+        window.onload = function() {
+            // Получаем данные пользователя из Telegram
+            if (tg?.initDataUnsafe?.user) {
+                const user = tg.initDataUnsafe.user;
+                userData.username = user.username || user.first_name || 'Player';
+                document.getElementById('username').textContent = userData.username;
+            }
+
+            updateUI();
+        };
+
+        // Обновление интерфейса
+        function updateUI() {
+            document.getElementById('balance').textContent = `$${userData.balance.toFixed(2)}`;
+            document.getElementById('games-count').textContent = userData.games;
+            document.getElementById('wins-count').textContent = userData.wins;
+            document.getElementById('winrate').textContent = userData.winRate + '%';
+        }
+
+        // Переключение экранов
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
             });
-            const [stats, setStats] = useState({
-                games: 47,
-                wins: 23,
-                winRate: 49,
-                profit: 324.50
-            });
-            const [loading, setLoading] = useState(false);
-            const [telegram, setTelegram] = useState(null);
+            document.getElementById(screenId).classList.add('active');
+        }
 
-            useEffect(() => {
-                // Initialize Telegram Web App
-                if (window.Telegram && window.Telegram.WebApp) {
-                    const tg = window.Telegram.WebApp;
-                    tg.ready();
-                    tg.expand();
-                    tg.setHeaderColor('#0a0b0e');
-                    tg.setBackgroundColor('#0a0b0e');
+        // Выбор игры
+        function selectGame(gameId) {
+            currentGame = gameId;
+            selectedOutcome = null;
+            betAmount = 10;
+            
+            const game = games[gameId];
+            let html = `
+                <div class="game-header">
+                    <div class="game-header-emoji">${game.emoji}</div>
+                    <div class="game-header-title">${game.name}</div>
+                    <div class="game-header-balance">Баланс: $${userData.balance.toFixed(2)}</div>
+                </div>
+
+                <div class="bet-section">
+                    <label class="bet-label">Сумма ставки</label>
+                    <input type="number" id="bet-amount" class="bet-input" value="10" min="1" max="${userData.balance}">
                     
-                    setTelegram(tg);
-                    
-                    // Get user data from Telegram
-                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                        setUsername(tg.initDataUnsafe.user.username || 'Player');
-                    }
-
-                    // Enable back button
-                    tg.BackButton.onClick(() => setView('home'));
-                }
-            }, []);
-
-            useEffect(() => {
-                if (telegram) {
-                    if (view === 'home') {
-                        telegram.BackButton.hide();
-                    } else {
-                        telegram.BackButton.show();
-                    }
-                }
-            }, [view, telegram]);
-
-            const games = [
-                { id: 'basketball', name: '🏀 Баскетбол', icon: '🏀', color: '#FF6B35', outcomes: ['Мимо (x1.8)', '3-очковый (x2.5)'] },
-                { id: 'football', name: '⚽ Футбол', icon: '⚽', color: '#2E86AB', outcomes: ['Мимо (x1.7)', 'Гол (x2.2)'] },
-                { id: 'dice', name: '🎲 Кости', icon: '🎲', color: '#A23B72', outcomes: ['1-3 (x1.5)', '4-6 (x1.5)'] },
-                { id: 'bowling', name: '🎳 Боулинг', icon: '🎳', color: '#F18F01', outcomes: ['Мимо (x1.6)', '3-4 кегли (x2.2)', '5 кеглей (x3.0)', 'Страйк (x4.0)'] }
-            ];
-
-            const HomeView = () => (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="min-h-screen p-4"
-                >
-                    {/* Header */}
-                    <div className="glass-card p-6 mb-6 relative overflow-hidden">
-                        <motion.div
-                            className="absolute top-0 right-0 w-32 h-32 opacity-10"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                        >
-                            <i className="fas fa-coins text-6xl text-yellow-400"></i>
-                        </motion.div>
-                        
-                        <div className="relative z-10">
-                            <div className="flex justify-between items-center mb-4">
-                                <h1 className="text-2xl font-800">
-                                    <span className="gradient-text">Union</span> Casino
-                                </h1>
-                                <div className="chip">
-                                    <i className="fas fa-user"></i>
-                                    <span>@{username || 'Player'}</span>
-                                </div>
-                            </div>
-                            
-                            <div className="text-center mb-4">
-                                <div className="text-sm text-gray-400 mb-1">Ваш баланс</div>
-                                <motion.div
-                                    key={balance}
-                                    initial={{ scale: 1.5, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    className="text-4xl font-800 gradient-text"
-                                >
-                                    ${balance.toFixed(2)}
-                                </motion.div>
-                            </div>
-                            
-                            <div className="grid grid-cols-3 gap-3 mt-6">
-                                <motion.div 
-                                    whileTap={{ scale: 0.95 }}
-                                    className="text-center"
-                                >
-                                    <div className="stat-value">{stats.games}</div>
-                                    <div className="text-xs text-gray-400">Игр</div>
-                                </motion.div>
-                                <motion.div 
-                                    whileTap={{ scale: 0.95 }}
-                                    className="text-center"
-                                >
-                                    <div className="stat-value">{stats.wins}</div>
-                                    <div className="text-xs text-gray-400">Побед</div>
-                                </motion.div>
-                                <motion.div 
-                                    whileTap={{ scale: 0.95 }}
-                                    className="text-center"
-                                >
-                                    <div className="stat-value">{stats.winRate}%</div>
-                                    <div className="text-xs text-gray-400">Винрейт</div>
-                                </motion.div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Quick Actions */}
-                    <div className="grid grid-cols-2 gap-4 mb-8">
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="btn-primary flex items-center justify-center gap-2"
-                            onClick={() => setView('deposit')}
-                        >
-                            <i className="fas fa-coins"></i>
-                            Пополнить
-                        </motion.button>
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="btn-secondary flex items-center justify-center gap-2"
-                            onClick={() => setView('withdraw')}
-                        >
-                            <i className="fas fa-arrow-up"></i>
-                            Вывод
-                        </motion.button>
-                    </div>
-
-                    {/* Games Grid */}
-                    <h2 className="text-xl font-700 mb-4 flex items-center gap-2">
-                        <i className="fas fa-dice text-yellow-400"></i>
-                        Игры
-                    </h2>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                        {games.map((game, index) => (
-                            <motion.div
-                                key={game.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="game-card neon-border"
-                                onClick={() => setView(`game-${game.id}`)}
-                            >
-                                <div className="text-4xl mb-3">{game.icon}</div>
-                                <h3 className="font-600 mb-1">{game.name}</h3>
-                                <p className="text-xs text-gray-400">
-                                    до x{Math.max(...game.outcomes.map(o => parseFloat(o.match(/x(\d+\.?\d*)/)?.[1] || 0))}
-                                </p>
-                                <div className="mt-3 flex justify-end">
-                                    <i className="fas fa-arrow-right text-yellow-400"></i>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                </motion.div>
-            );
-
-            const GameView = ({ gameId }) => {
-                const game = games.find(g => g.id === gameId);
-                const [selectedOutcome, setSelectedOutcome] = useState(null);
-                const [betAmount, setBetAmount] = useState(10);
-                const [isPlaying, setIsPlaying] = useState(false);
-
-                const handlePlay = () => {
-                    if (!selectedOutcome || betAmount < 1 || betAmount > balance) return;
-                    
-                    setIsPlaying(true);
-                    setTimeout(() => {
-                        setBalance(prev => prev - betAmount);
-                        setIsPlaying(false);
-                        setView('result');
-                    }, 2000);
-                };
-
-                return (
-                    <motion.div
-                        initial={{ opacity: 0, x: 300 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -300 }}
-                        className="min-h-screen p-4"
-                    >
-                        {/* Game Header */}
-                        <div 
-                            className="glass-card p-6 mb-6 text-center"
-                            style={{ borderColor: game.color }}
-                        >
-                            <motion.div
-                                animate={isPlaying ? { rotate: 360, scale: [1, 1.2, 1] } : {}}
-                                transition={{ duration: 2, ease: "easeInOut" }}
-                                className="text-7xl mb-4"
-                            >
-                                {game.icon}
-                            </motion.div>
-                            <h1 className="text-2xl font-800 mb-2">{game.name}</h1>
-                            <p className="text-gray-400">Баланс: ${balance.toFixed(2)}</p>
-                        </div>
-
-                        {/* Bet Amount */}
-                        <div className="mb-6">
-                            <label className="block text-sm font-600 mb-2 text-gray-400">
-                                Сумма ставки
-                            </label>
-                            <div className="flex gap-2">
-                                <input
-                                    type="number"
-                                    className="input-field"
-                                    value={betAmount}
-                                    onChange={(e) => setBetAmount(Number(e.target.value))}
-                                    min="1"
-                                    max={balance}
-                                    disabled={isPlaying}
-                                />
-                            </div>
-                            <div className="grid grid-cols-4 gap-2 mt-2">
-                                {[5, 10, 25, 50].map(amount => (
-                                    <motion.button
-                                        key={amount}
-                                        whileTap={{ scale: 0.95 }}
-                                        className="btn-secondary text-sm py-2"
-                                        onClick={() => setBetAmount(amount)}
-                                        disabled={isPlaying}
-                                    >
-                                        ${amount}
-                                    </motion.button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Outcomes */}
-                        <div className="mb-8">
-                            <label className="block text-sm font-600 mb-2 text-gray-400">
-                                Выберите исход
-                            </label>
-                            <div className="space-y-2">
-                                {game.outcomes.map((outcome, idx) => {
-                                    const odds = parseFloat(outcome.match(/x(\d+\.?\d*)/)?.[1] || 1);
-                                    const potentialWin = (betAmount * odds).toFixed(2);
-                                    
-                                    return (
-                                        <motion.button
-                                            key={idx}
-                                            whileHover={{ scale: 1.01 }}
-                                            whileTap={{ scale: 0.99 }}
-                                            className={`w-full p-4 rounded-2xl text-left transition-all ${
-                                                selectedOutcome === idx 
-                                                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black' 
-                                                    : 'bg-white/5 hover:bg-white/10'
-                                            }`}
-                                            onClick={() => setSelectedOutcome(idx)}
-                                            disabled={isPlaying}
-                                        >
-                                            <div className="flex justify-between items-center">
-                                                <span className="font-600">{outcome}</span>
-                                                <span className="font-700">
-                                                    ${potentialWin}
-                                                </span>
-                                            </div>
-                                        </motion.button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-                        {/* Play Button */}
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className={`btn-primary w-full ${isPlaying ? 'opacity-50' : ''}`}
-                            onClick={handlePlay}
-                            disabled={!selectedOutcome || betAmount < 1 || betAmount > balance || isPlaying}
-                        >
-                            {isPlaying ? (
-                                <div className="flex items-center justify-center gap-2">
-                                    <i className="fas fa-spinner fa-spin"></i>
-                                    Бросок...
-                                </div>
-                            ) : (
-                                'Сделать ставку'
-                            )}
-                        </motion.button>
-                    </motion.div>
-                );
-            };
-
-            const ResultView = () => {
-                const [showResult, setShowResult] = useState(false);
-                const [diceValue, setDiceValue] = useState(null);
-                const [isWin, setIsWin] = useState(false);
-
-                useEffect(() => {
-                    // Simulate dice roll
-                    setTimeout(() => {
-                        const value = Math.floor(Math.random() * 6) + 1;
-                        setDiceValue(value);
-                        setIsWin(value > 3);
-                        setShowResult(true);
-                    }, 500);
-                }, []);
-
-                return (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="min-h-screen p-4 flex items-center justify-center"
-                    >
-                        <div className="text-center">
-                            <motion.div
-                                animate={!showResult ? { rotate: 360 } : {}}
-                                transition={{ duration: 1, repeat: Infinity }}
-                                className="text-9xl mb-8"
-                            >
-                                {!showResult ? '🎲' : diceValue === 1 ? '⚀' : diceValue === 2 ? '⚁' : diceValue === 3 ? '⚂' : diceValue === 4 ? '⚃' : diceValue === 5 ? '⚄' : '⚅'}
-                            </motion.div>
-
-                            <AnimatePresence>
-                                {showResult && (
-                                    <motion.div
-                                        initial={{ scale: 0, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        className="glass-card p-8"
-                                    >
-                                        {isWin ? (
-                                            <>
-                                                <i className="fas fa-trophy text-6xl text-yellow-400 mb-4"></i>
-                                                <h2 className="text-3xl font-800 gradient-text mb-2">Вы выиграли!</h2>
-                                                <p className="text-xl mb-6">+${(gameData.bet * 2).toFixed(2)}</p>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <i className="fas fa-skull text-6xl text-gray-400 mb-4"></i>
-                                                <h2 className="text-3xl font-800 mb-2">Вы проиграли</h2>
-                                                <p className="text-xl mb-6">-${gameData.bet.toFixed(2)}</p>
-                                            </>
-                                        )}
-                                        
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <motion.button
-                                                whileHover={{ scale: 1.02 }}
-                                                whileTap={{ scale: 0.98 }}
-                                                className="btn-secondary"
-                                                onClick={() => setView('home')}
-                                            >
-                                                На главную
-                                            </motion.button>
-                                            <motion.button
-                                                whileHover={{ scale: 1.02 }}
-                                                whileTap={{ scale: 0.98 }}
-                                                className="btn-primary"
-                                                onClick={() => setView(`game-${gameData.type}`)}
-                                            >
-                                                Играть снова
-                                            </motion.button>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
-                    </motion.div>
-                );
-            };
-
-            const DepositView = () => {
-                const [amount, setAmount] = useState(10);
-                const [method, setMethod] = useState('crypto');
-
-                const handleDeposit = () => {
-                    // Simulate deposit
-                    setBalance(prev => prev + amount);
-                    setView('home');
-                };
-
-                return (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="min-h-screen p-4"
-                    >
-                        <div className="glass-card p-6 mb-6">
-                            <h2 className="text-2xl font-800 gradient-text mb-4">Пополнение</h2>
-                            
-                            <div className="mb-6">
-                                <label className="block text-sm font-600 mb-2 text-gray-400">
-                                    Способ оплаты
-                                </label>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <motion.button
-                                        whileTap={{ scale: 0.95 }}
-                                        className={`p-4 rounded-2xl border-2 transition-all ${
-                                            method === 'crypto' 
-                                                ? 'border-yellow-400 bg-yellow-400/10' 
-                                                : 'border-white/10 bg-white/5'
-                                        }`}
-                                        onClick={() => setMethod('crypto')}
-                                    >
-                                        <i className="fab fa-bitcoin text-2xl mb-2 text-yellow-400"></i>
-                                        <div>Crypto Bot</div>
-                                    </motion.button>
-                                    <motion.button
-                                        whileTap={{ scale: 0.95 }}
-                                        className={`p-4 rounded-2xl border-2 transition-all ${
-                                            method === 'stars' 
-                                                ? 'border-yellow-400 bg-yellow-400/10' 
-                                                : 'border-white/10 bg-white/5'
-                                        }`}
-                                        onClick={() => setMethod('stars')}
-                                    >
-                                        <i className="fas fa-star text-2xl mb-2 text-yellow-400"></i>
-                                        <div>Telegram Stars</div>
-                                    </motion.button>
-                                </div>
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="block text-sm font-600 mb-2 text-gray-400">
-                                    Сумма
-                                </label>
-                                <input
-                                    type="number"
-                                    className="input-field"
-                                    value={amount}
-                                    onChange={(e) => setAmount(Number(e.target.value))}
-                                    min="1"
-                                />
-                                <div className="grid grid-cols-4 gap-2 mt-2">
-                                    {[10, 25, 50, 100].map(a => (
-                                        <motion.button
-                                            key={a}
-                                            whileTap={{ scale: 0.95 }}
-                                            className="btn-secondary text-sm py-2"
-                                            onClick={() => setAmount(a)}
-                                        >
-                                            ${a}
-                                        </motion.button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="btn-primary w-full"
-                                onClick={handleDeposit}
-                            >
-                                Пополнить на ${amount}
-                            </motion.button>
-                        </div>
-                    </motion.div>
-                );
-            };
-
-            const WithdrawView = () => {
-                const [amount, setAmount] = useState(10);
-                const [address, setAddress] = useState('');
-                const [step, setStep] = useState(1);
-
-                const handleWithdraw = () => {
-                    if (step === 1 && amount <= balance && amount >= 10) {
-                        setStep(2);
-                    } else if (step === 2 && address) {
-                        setBalance(prev => prev - amount);
-                        setView('home');
-                    }
-                };
-
-                return (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="min-h-screen p-4"
-                    >
-                        <div className="glass-card p-6">
-                            <h2 className="text-2xl font-800 gradient-text mb-4">Вывод средств</h2>
-                            
-                            {step === 1 ? (
-                                <>
-                                    <div className="mb-6">
-                                        <label className="block text-sm font-600 mb-2 text-gray-400">
-                                            Сумма вывода (мин. $10)
-                                        </label>
-                                        <input
-                                            type="number"
-                                            className="input-field"
-                                            value={amount}
-                                            onChange={(e) => setAmount(Number(e.target.value))}
-                                            min="10"
-                                            max={balance}
-                                        />
-                                        <div className="text-sm text-gray-400 mt-2">
-                                            Доступно: ${balance.toFixed(2)}
-                                        </div>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="mb-6">
-                                    <label className="block text-sm font-600 mb-2 text-gray-400">
-                                        Адрес USDT (TRC20)
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className="input-field"
-                                        value={address}
-                                        onChange={(e) => setAddress(e.target.value)}
-                                        placeholder="T..."
-                                    />
-                                </div>
-                            )}
-
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="btn-primary w-full"
-                                onClick={handleWithdraw}
-                                disabled={(step === 1 && (amount < 10 || amount > balance)) || 
-                                         (step === 2 && !address)}
-                            >
-                                {step === 1 ? 'Продолжить' : 'Подтвердить вывод'}
-                            </motion.button>
-                        </div>
-                    </motion.div>
-                );
-            };
-
-            return (
-                <div className="relative min-h-screen">
-                    <Particles />
-                    
-                    <div className="max-w-md mx-auto relative z-10">
-                        <AnimatePresence mode="wait">
-                            {view === 'home' && <HomeView key="home" />}
-                            {view.startsWith('game-') && (
-                                <GameView key="game" gameId={view.replace('game-', '')} />
-                            )}
-                            {view === 'result' && <ResultView key="result" />}
-                            {view === 'deposit' && <DepositView key="deposit" />}
-                            {view === 'withdraw' && <WithdrawView key="withdraw" />}
-                        </AnimatePresence>
+                    <div class="bet-quick">
+                        <button class="bet-quick-btn" onclick="setBetAmount(5)">$5</button>
+                        <button class="bet-quick-btn" onclick="setBetAmount(10)">$10</button>
+                        <button class="bet-quick-btn" onclick="setBetAmount(25)">$25</button>
+                        <button class="bet-quick-btn" onclick="setBetAmount(50)">$50</button>
                     </div>
                 </div>
-            );
-        };
 
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+                <div class="outcomes-section">
+                    <label class="bet-label">Выберите исход</label>
+            `;
+
+            game.outcomes.forEach((outcome, index) => {
+                html += `
+                    <button class="outcome-btn" onclick="selectOutcome(${index})" id="outcome-${index}">
+                        <span>${outcome.name}</span>
+                        <span class="outcome-odds">x${outcome.odds}</span>
+                    </button>
+                `;
+            });
+
+            html += `
+                </div>
+                <button class="play-btn" onclick="playGame()" id="play-btn">Сделать ставку</button>
+            `;
+
+            document.getElementById('game-content').innerHTML = html;
+            showScreen('game-screen');
+        }
+
+        // Установка суммы ставки
+        function setBetAmount(amount) {
+            betAmount = amount;
+            document.getElementById('bet-amount').value = amount;
+        }
+
+        // Выбор исхода
+        function selectOutcome(index) {
+            selectedOutcome = index;
+            
+            // Визуальное выделение
+            document.querySelectorAll('.outcome-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.getElementById(`outcome-${index}`).classList.add('selected');
+        }
+
+        // Игра
+        function playGame() {
+            if (selectedOutcome === null) {
+                alert('Выберите исход!');
+                return;
+            }
+
+            const betInput = document.getElementById('bet-amount');
+            betAmount = parseFloat(betInput.value);
+
+            if (betAmount < 1) {
+                alert('Минимальная ставка: $1');
+                return;
+            }
+
+            if (betAmount > userData.balance) {
+                alert('Недостаточно средств!');
+                return;
+            }
+
+            // Списываем ставку
+            userData.balance -= betAmount;
+            userData.games += 1;
+            updateUI();
+
+            // Показываем анимацию
+            showRollAnimation();
+        }
+
+        // Анимация броска
+        function showRollAnimation() {
+            document.getElementById('result-content').innerHTML = `
+                <div class="dice-animation">
+                    <div class="dice">🎲</div>
+                    <div style="margin-top: 24px; color: #888;">Бросок...</div>
+                </div>
+            `;
+            
+            showScreen('result-screen');
+
+            // Имитация броска
+            setTimeout(() => {
+                const diceValue = Math.floor(Math.random() * 6) + 1;
+                const game = games[currentGame];
+                const outcome = game.outcomes[selectedOutcome];
+                
+                // Определяем победу
+                let isWin = false;
+                if (currentGame === 'basketball') {
+                    isWin = (selectedOutcome === 0 && diceValue <= 3) || 
+                            (selectedOutcome === 1 && diceValue >= 4);
+                } else if (currentGame === 'football') {
+                    isWin = (selectedOutcome === 0 && diceValue <= 2) || 
+                            (selectedOutcome === 1 && diceValue >= 3);
+                } else if (currentGame === 'dice') {
+                    isWin = (selectedOutcome === 0 && diceValue <= 3) || 
+                            (selectedOutcome === 1 && diceValue >= 4);
+                } else if (currentGame === 'bowling') {
+                    isWin = (selectedOutcome === 0 && diceValue <= 2) ||
+                            (selectedOutcome === 1 && diceValue >= 3 && diceValue <= 4) ||
+                            (selectedOutcome === 2 && diceValue === 5) ||
+                            (selectedOutcome === 3 && diceValue === 6);
+                }
+
+                showResult(isWin, betAmount, outcome.odds, diceValue);
+            }, 2000);
+        }
+
+        // Показ результата
+        function showResult(isWin, bet, odds, diceValue) {
+            const winAmount = bet * odds;
+            
+            if (isWin) {
+                userData.balance += winAmount;
+                userData.wins += 1;
+            }
+
+            userData.winRate = Math.round((userData.wins / userData.games) * 100);
+            updateUI();
+
+            const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+            
+            document.getElementById('result-content').innerHTML = `
+                <div class="result-icon">${diceFaces[diceValue - 1]}</div>
+                <div class="result-title ${isWin ? 'result-win' : 'result-lose'}">
+                    ${isWin ? 'ПОБЕДА!' : 'ПРОИГРЫШ'}
+                </div>
+                <div class="result-amount ${isWin ? 'result-win' : 'result-lose'}">
+                    ${isWin ? '+' : '-'}$${isWin ? winAmount.toFixed(2) : bet.toFixed(2)}
+                </div>
+                <div class="result-buttons">
+                    <button class="action-btn secondary" onclick="showScreen('home-screen')">
+                        На главную
+                    </button>
+                    <button class="action-btn primary" onclick="selectGame('${currentGame}')">
+                        Играть снова
+                    </button>
+                </div>
+            `;
+        }
+
+        // Пополнение
+        function setDepositAmount(amount) {
+            document.getElementById('deposit-amount').value = amount;
+        }
+
+        function setPaymentMethod(method) {
+            paymentMethod = method;
+        }
+
+        function processDeposit() {
+            const amount = parseFloat(document.getElementById('deposit-amount').value);
+            userData.balance += amount;
+            updateUI();
+            
+            if (tg) {
+                tg.sendData(JSON.stringify({
+                    action: 'deposit',
+                    amount: amount,
+                    method: paymentMethod
+                }));
+            }
+            
+            showScreen('home-screen');
+        }
+
+        // Вывод
+        function processWithdraw() {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            const address = document.getElementById('wallet-address').value;
+
+            if (amount < 10) {
+                alert('Минимальная сумма вывода: $10');
+                return;
+            }
+
+            if (amount > userData.balance) {
+                alert('Недостаточно средств!');
+                return;
+            }
+
+            if (!address || !address.match(/^T[A-Za-z1-9]{33}$/)) {
+                alert('Введите корректный TRC20 адрес');
+                return;
+            }
+
+            userData.balance -= amount;
+            updateUI();
+
+            if (tg) {
+                tg.sendData(JSON.stringify({
+                    action: 'withdraw',
+                    amount: amount,
+                    address: address
+                }));
+            }
+
+            alert('Заявка на вывод отправлена!');
+            showScreen('home-screen');
+        }
+
+        // Обработка кнопки назад
+        if (tg) {
+            tg.BackButton.onClick(() => {
+                const activeScreen = document.querySelector('.screen.active');
+                if (activeScreen.id !== 'home-screen') {
+                    showScreen('home-screen');
+                } else {
+                    tg.close();
+                }
+            });
+        }
     </script>
 </body>
 </html>
