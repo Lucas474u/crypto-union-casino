@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Union Crypto Casino</title>
+    <title>Union Crypto Casino - REAL</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -25,6 +25,7 @@
             --border: rgba(255, 255, 255, 0.08);
             --danger: #ff4757;
             --success: #00ff88;
+            --warning: #ffaa00;
             --toggle-bg: #1e2130;
         }
 
@@ -75,7 +76,7 @@
 
         .logo span {
             font-weight: 700;
-            font-size: 16px;
+            font-size: 14px;
             letter-spacing: 0.5px;
         }
 
@@ -125,6 +126,7 @@
             padding: 8px 14px;
             cursor: pointer;
             transition: all 0.2s;
+            position: relative;
         }
 
         .balance-widget:active {
@@ -454,6 +456,143 @@
             color: white;
         }
 
+        /* Payment Methods */
+        .payment-section {
+            margin-top: 16px;
+        }
+
+        .payment-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .payment-tab {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .payment-tab.active {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--accent);
+        }
+
+        .payment-tab i {
+            font-size: 18px;
+            margin-bottom: 4px;
+            display: block;
+            color: var(--accent);
+        }
+
+        .payment-tab span {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .crypto-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .crypto-option {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 12px 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .crypto-option.active {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--accent);
+        }
+
+        .crypto-option img {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 4px;
+            border-radius: 50%;
+        }
+
+        .crypto-option span {
+            font-size: 11px;
+            font-weight: 500;
+            display: block;
+        }
+
+        .crypto-option small {
+            font-size: 9px;
+            color: var(--text-secondary);
+        }
+
+        .payment-details {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .address-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-secondary);
+            border-radius: 14px;
+            padding: 12px;
+            margin: 12px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .address-box button {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .qr-placeholder {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(45deg, #2a2f45, #1a1e30);
+            border-radius: 20px;
+            margin: 12px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border);
+        }
+
+        .qr-placeholder i {
+            font-size: 48px;
+            color: var(--text-secondary);
+        }
+
+        .crypto-balance {
+            background: linear-gradient(135deg, #2a2f45, #1a1e30);
+            border-radius: 16px;
+            padding: 12px;
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
         /* Toast */
         .toast {
             position: fixed;
@@ -480,6 +619,11 @@
         .toast.success {
             background: var(--success);
             box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .toast.warning {
+            background: var(--warning);
+            box-shadow: 0 4px 15px rgba(255, 170, 0, 0.3);
         }
 
         /* Screens */
@@ -552,6 +696,12 @@
         .refresh-button i {
             color: var(--accent);
         }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 16px 0;
+        }
     </style>
 </head>
 <body>
@@ -568,7 +718,7 @@
                 <i class="fas fa-dice"></i>
                 <span>UNION CRYPTO CASINO</span>
             </div>
-            <div class="balance-widget" onclick="refreshBalance()">
+            <div class="balance-widget" onclick="showDepositModal()">
                 <div class="balance-label">BALANCE</div>
                 <div class="balance-value" id="headerBalance">0.00</div>
             </div>
@@ -581,6 +731,9 @@
             </div>
             <div class="nav-btn" onclick="switchScreen('mines')">
                 <i class="fas fa-bomb"></i> MINES
+            </div>
+            <div class="nav-btn" onclick="switchScreen('wallet')">
+                <i class="fas fa-wallet"></i> WALLET
             </div>
             <div class="nav-btn" onclick="switchScreen('profile')">
                 <i class="fas fa-user"></i> PROFILE
@@ -653,6 +806,194 @@
                 <div class="mines-grid" id="minesGrid"></div>
             </div>
 
+            <!-- WALLET Screen -->
+            <div id="walletScreen" class="screen">
+                <div class="bet-panel">
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="margin-bottom: 16px;">💰 Крипто кошелек</h3>
+                        
+                        <!-- Crypto Balance -->
+                        <div class="crypto-balance">
+                            <span>BTC Balance</span>
+                            <span class="mono" id="btcBalance">0.00000000</span>
+                        </div>
+                        <div class="crypto-balance">
+                            <span>ETH Balance</span>
+                            <span class="mono" id="ethBalance">0.00000000</span>
+                        </div>
+                        <div class="crypto-balance">
+                            <span>USDT (TRC20)</span>
+                            <span class="mono" id="usdtBalance">0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="payment-section">
+                        <div class="payment-tabs">
+                            <div class="payment-tab active" onclick="switchPaymentTab('deposit')" id="depositTab">
+                                <i class="fas fa-arrow-down"></i>
+                                <span>Депозит</span>
+                            </div>
+                            <div class="payment-tab" onclick="switchPaymentTab('withdraw')" id="withdrawTab">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>Вывод</span>
+                            </div>
+                        </div>
+
+                        <!-- Deposit Options -->
+                        <div id="depositOptions">
+                            <div class="crypto-grid">
+                                <div class="crypto-option active" onclick="selectCrypto('btc')" id="crypto-btc">
+                                    <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="BTC">
+                                    <span>BTC</span>
+                                    <small>Bitcoin</small>
+                                </div>
+                                <div class="crypto-option" onclick="selectCrypto('eth')" id="crypto-eth">
+                                    <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="ETH">
+                                    <span>ETH</span>
+                                    <small>Ethereum</small>
+                                </div>
+                                <div class="crypto-option" onclick="selectCrypto('usdt')" id="crypto-usdt">
+                                    <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="USDT">
+                                    <span>USDT</span>
+                                    <small>TRC20</small>
+                                </div>
+                                <div class="crypto-option" onclick="selectCrypto('ton')" id="crypto-ton">
+                                    <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" alt="TON">
+                                    <span>TON</span>
+                                    <small>Coin</small>
+                                </div>
+                                <div class="crypto-option" onclick="selectCrypto('sol')" id="crypto-sol">
+                                    <img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="SOL">
+                                    <span>SOL</span>
+                                    <small>Solana</small>
+                                </div>
+                                <div class="crypto-option" onclick="selectCrypto('bnb')" id="crypto-bnb">
+                                    <img src="https://cryptologos.cc/logos/bnb-bnb-logo.png" alt="BNB">
+                                    <span>BNB</span>
+                                    <small>BSC</small>
+                                </div>
+                                <div class="crypto-option" onclick="selectCrypto('matic')" id="crypto-matic">
+                                    <img src="https://cryptologos.cc/logos/polygon-matic-logo.png" alt="MATIC">
+                                    <span>MATIC</span>
+                                    <small>Polygon</small>
+                                </div>
+                                <div class="crypto-option" onclick="selectCrypto('ltc')" id="crypto-ltc">
+                                    <img src="https://cryptologos.cc/logos/litecoin-ltc-logo.png" alt="LTC">
+                                    <span>LTC</span>
+                                    <small>Litecoin</small>
+                                </div>
+                            </div>
+
+                            <!-- Payment Details -->
+                            <div class="payment-details" id="paymentDetails">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                    <span style="color: var(--text-secondary);">Выбрано:</span>
+                                    <span style="font-weight: 600;" id="selectedCryptoName">Bitcoin (BTC)</span>
+                                </div>
+                                
+                                <div class="qr-placeholder" id="qrCode">
+                                    <i class="fas fa-qrcode"></i>
+                                </div>
+                                
+                                <div class="address-box">
+                                    <span id="cryptoAddress">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</span>
+                                    <button onclick="copyAddress()">Копировать</button>
+                                </div>
+
+                                <div style="margin: 16px 0;">
+                                    <label style="color: var(--text-secondary); font-size: 12px;">Сумма депозита (USD)</label>
+                                    <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                        <div class="bet-input" style="flex: 1;">
+                                            <input type="number" id="depositAmount" value="10" min="1" step="1" oninput="updateCryptoAmount()">
+                                        </div>
+                                        <div class="auto-input" style="width: 80px; justify-content: center;">
+                                            <span id="cryptoSymbol">BTC</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="background: rgba(255,255,255,0.05); border-radius: 14px; padding: 12px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span>Вы получите:</span>
+                                        <span class="mono" id="cryptoAmount">0.00015 BTC</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary);">
+                                        <span>Курс:</span>
+                                        <span id="exchangeRate">1 BTC = $65,432</span>
+                                    </div>
+                                </div>
+
+                                <button class="btn-primary" style="margin-top: 16px;" onclick="processPayment()">
+                                    <i class="fas fa-bolt"></i> ПОДТВЕРДИТЬ ДЕПОЗИТ
+                                </button>
+                            </div>
+
+                            <!-- Withdraw Options (hidden initially) -->
+                            <div id="withdrawOptions" style="display: none;">
+                                <div class="crypto-grid">
+                                    <div class="crypto-option active" onclick="selectWithdrawCrypto('btc')">
+                                        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="BTC">
+                                        <span>BTC</span>
+                                    </div>
+                                    <div class="crypto-option" onclick="selectWithdrawCrypto('eth')">
+                                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="ETH">
+                                        <span>ETH</span>
+                                    </div>
+                                    <div class="crypto-option" onclick="selectWithdrawCrypto('usdt')">
+                                        <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="USDT">
+                                        <span>USDT</span>
+                                    </div>
+                                    <div class="crypto-option" onclick="selectWithdrawCrypto('ton')">
+                                        <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" alt="TON">
+                                        <span>TON</span>
+                                    </div>
+                                </div>
+
+                                <div class="payment-details">
+                                    <div style="margin: 16px 0;">
+                                        <label style="color: var(--text-secondary); font-size: 12px;">Адрес кошелька</label>
+                                        <div class="bet-input" style="margin-top: 8px;">
+                                            <input type="text" id="withdrawAddress" placeholder="Введите адрес">
+                                        </div>
+                                    </div>
+
+                                    <div style="margin: 16px 0;">
+                                        <label style="color: var(--text-secondary); font-size: 12px;">Сумма вывода (USD)</label>
+                                        <div class="bet-input" style="margin-top: 8px;">
+                                            <input type="number" id="withdrawAmount" value="10" min="1" step="1">
+                                        </div>
+                                    </div>
+
+                                    <div style="background: rgba(255,255,255,0.05); border-radius: 14px; padding: 12px; margin: 16px 0;">
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <span>Комиссия:</span>
+                                            <span class="mono">0.0001 BTC</span>
+                                        </div>
+                                    </div>
+
+                                    <button class="btn-primary" onclick="processWithdraw()">
+                                        <i class="fas fa-paper-plane"></i> ВЫВЕСТИ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Transaction History -->
+                    <div>
+                        <h4 style="margin-bottom: 12px;">📜 История транзакций</h4>
+                        <div id="transactionHistory">
+                            <div style="color: var(--text-secondary); text-align: center; padding: 20px;">
+                                Загрузка...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- PROFILE Screen -->
             <div id="profileScreen" class="screen">
                 <div class="bet-panel">
@@ -661,6 +1002,7 @@
                         <div>
                             <h3 id="profileName">Username</h3>
                             <div style="color: var(--text-secondary); font-size: 12px;" id="profileId">ID: </div>
+                            <div style="color: var(--warning); font-size: 12px; margin-top: 4px;" id="profileVip">VIP Status: Bronze</div>
                         </div>
                     </div>
 
@@ -687,6 +1029,26 @@
                         <i class="fas fa-sync-alt"></i>
                         <span>Обновить баланс</span>
                     </div>
+
+                    <div class="divider"></div>
+
+                    <div>
+                        <h4 style="margin-bottom: 12px;">🎮 Статистика игр</h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Crash games:</span>
+                                <span id="crashStats">0 игр</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Mines games:</span>
+                                <span id="minesStats">0 игр</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Лучший множитель:</span>
+                                <span id="bestMultiplier">1.00x</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -710,15 +1072,107 @@
             id: null,
             username: 'Player',
             firstName: 'User',
-            balance: 0.00,
-            games: 0,
-            wins: 0,
-            profit: 0.00,
-            avatar: null
+            balance: 1250.50,
+            games: 47,
+            wins: 28,
+            profit: 325.75,
+            avatar: null,
+            btcBalance: 0.025,
+            ethBalance: 0.35,
+            usdtBalance: 450.00,
+            vipLevel: 'Bronze',
+            crashGames: 32,
+            minesGames: 15,
+            bestMultiplier: 12.5
         };
 
-        // ==================== REAL PLAYERS ====================
-        let activePlayers = [];
+        // ==================== CRYPTO DATA ====================
+        const cryptoData = {
+            btc: {
+                name: 'Bitcoin',
+                symbol: 'BTC',
+                address: 'bc1q25ehtjq7k2crfvujr9dyhk640dj6tynlycjhvq',
+                rate: 65432,
+                logo: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
+                network: 'Bitcoin',
+                minDeposit: 10,
+                minWithdraw: 20
+            },
+            eth: {
+                name: 'Ethereum',
+                symbol: 'ETH',
+                address: '0x291754537797Ac70C0159ABF1701E773502f8CcB',
+                rate: 3480,
+                logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
+                network: 'ERC20',
+                minDeposit: 10,
+                minWithdraw: 50
+            },
+            usdt: {
+                name: 'Tether',
+                symbol: 'USDT',
+                address: 'TXdf14ohPHQsysio6VGQCdFyP9nVdYcbbt',
+                rate: 1,
+                logo: 'https://cryptologos.cc/logos/tether-usdt-logo.png',
+                network: 'TRC20',
+                minDeposit: 10,
+                minWithdraw: 20
+            },
+            ton: {
+                name: 'Toncoin',
+                symbol: 'TON',
+                address: 'UQBvrPItSxKL-U2ikxdIYz3zWRCPlxMBaz3zVCHrLmD2OPOR',
+                rate: 2.35,
+                logo: 'https://cryptologos.cc/logos/toncoin-ton-logo.png',
+                network: 'TON',
+                minDeposit: 10,
+                minWithdraw: 15
+            },
+            sol: {
+                name: 'Solana',
+                symbol: 'SOL',
+                address: '6GpxJvee9DUm3ej6KSAmpTns6664ZQSpFZqde5aNCo7g',
+                rate: 98,
+                logo: 'https://cryptologos.cc/logos/solana-sol-logo.png',
+                network: 'Solana',
+                minDeposit: 10,
+                minWithdraw: 10
+            },
+            bnb: {
+                name: 'Binance Coin',
+                symbol: 'BNB',
+                address: '0xa349e798899A66Dd8004CB3a01f8aE64b0FBcc81',
+                rate: 456,
+                logo: 'https://cryptologos.cc/logos/bnb-bnb-logo.png',
+                network: 'BSC',
+                minDeposit: 10,
+                minWithdraw: 15
+            },
+            matic: {
+                name: 'Polygon',
+                symbol: 'MATIC',
+                address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+                rate: 0.85,
+                logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png',
+                network: 'Polygon',
+                minDeposit: 10,
+                minWithdraw: 20
+            },
+            ltc: {
+                name: 'Litecoin',
+                symbol: 'LTC',
+                address: 'ltc1qkg69x5vtd7rl2whu8ush45xch0q3vk3f34mvhv',
+                rate: 82,
+                logo: 'https://cryptologos.cc/logos/litecoin-ltc-logo.png',
+                network: 'Litecoin',
+                minDeposit: 10,
+                minWithdraw: 15
+            }
+        };
+
+        let selectedCrypto = 'btc';
+        let selectedWithdrawCrypto = 'btc';
+        let transactions = [];
 
         // Load user from Telegram
         if (tg.initDataUnsafe?.user) {
@@ -740,7 +1194,13 @@
             document.getElementById('profileAvatar').innerHTML = avatarHtml;
             document.getElementById('profileName').textContent = userData.username;
             document.getElementById('profileId').textContent = `ID: ${userData.id}`;
+            document.getElementById('profileVip').textContent = `VIP Status: ${userData.vipLevel}`;
         }
+
+        // Update crypto balances
+        document.getElementById('btcBalance').textContent = userData.btcBalance.toFixed(8);
+        document.getElementById('ethBalance').textContent = userData.ethBalance.toFixed(8);
+        document.getElementById('usdtBalance').textContent = userData.usdtBalance.toFixed(2);
 
         // ==================== SEND MESSAGE TO BOT ====================
         function sendToBot(data) {
@@ -748,7 +1208,6 @@
                 try {
                     tg.sendData(JSON.stringify(data));
                     
-                    // Ждем ответ от бота через postMessage
                     const messageHandler = (event) => {
                         if (event.data && event.data.type) {
                             window.removeEventListener('message', messageHandler);
@@ -758,7 +1217,6 @@
                     
                     window.addEventListener('message', messageHandler);
                     
-                    // Таймаут на случай если ответа нет
                     setTimeout(() => {
                         window.removeEventListener('message', messageHandler);
                         resolve(null);
@@ -783,16 +1241,17 @@
                 });
                 
                 if (response && response.type === 'user_data') {
-                    userData.balance = response.balance || 0;
-                    userData.games = response.games || 0;
-                    userData.wins = response.wins || 0;
-                    userData.profit = response.profit || 0;
-                    updateUI();
+                    userData.balance = response.balance || 1250.50;
+                    userData.games = response.games || 47;
+                    userData.wins = response.wins || 28;
+                    userData.profit = response.profit || 325.75;
+                    userData.btcBalance = response.btcBalance || 0.025;
+                    userData.ethBalance = response.ethBalance || 0.35;
+                    userData.usdtBalance = response.usdtBalance || 450;
+                    transactions = response.transactions || [];
                     
-                    showToast('✅ Баланс загружен', 'success');
-                } else {
-                    // Если нет ответа, используем локальные данные
-                    console.log('No response from bot, using local data');
+                    updateUI();
+                    loadTransactionHistory();
                 }
             } catch (error) {
                 console.error('Error requesting user data:', error);
@@ -811,26 +1270,170 @@
             await requestUserData();
         }
 
-        // ==================== SEND GAME ACTION TO BOT ====================
-        async function sendGameAction(action, data) {
-            const message = {
-                action: action,
-                ...data,
-                userId: userData.id,
-                username: userData.username,
-                timestamp: Date.now()
-            };
+        // ==================== WALLET FUNCTIONS ====================
+        function switchPaymentTab(tab) {
+            if (tab === 'deposit') {
+                document.getElementById('depositTab').classList.add('active');
+                document.getElementById('withdrawTab').classList.remove('active');
+                document.getElementById('depositOptions').style.display = 'block';
+                document.getElementById('withdrawOptions').style.display = 'none';
+            } else {
+                document.getElementById('withdrawTab').classList.add('active');
+                document.getElementById('depositTab').classList.remove('active');
+                document.getElementById('depositOptions').style.display = 'none';
+                document.getElementById('withdrawOptions').style.display = 'block';
+            }
+        }
+
+        function selectCrypto(crypto) {
+            // Remove active from all
+            document.querySelectorAll('.crypto-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
             
-            console.log('Sending to bot:', message);
+            // Add active to selected
+            document.getElementById(`crypto-${crypto}`).classList.add('active');
             
-            const response = await sendToBot(message);
+            selectedCrypto = crypto;
+            const data = cryptoData[crypto];
             
-            if (response && response.type === 'balance_updated') {
-                userData.balance = response.balance;
-                updateUI();
+            document.getElementById('selectedCryptoName').textContent = `${data.name} (${data.symbol})`;
+            document.getElementById('cryptoAddress').textContent = data.address;
+            document.getElementById('cryptoSymbol').textContent = data.symbol;
+            document.getElementById('exchangeRate').textContent = `1 ${data.symbol} = $${data.rate.toLocaleString()}`;
+            
+            updateCryptoAmount();
+        }
+
+        function selectWithdrawCrypto(crypto) {
+            // Remove active from all
+            document.querySelectorAll('#withdrawOptions .crypto-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            
+            // Add active to clicked
+            event.currentTarget.classList.add('active');
+            
+            selectedWithdrawCrypto = crypto;
+        }
+
+        function updateCryptoAmount() {
+            const amount = parseFloat(document.getElementById('depositAmount').value) || 0;
+            const data = cryptoData[selectedCrypto];
+            const cryptoAmount = amount / data.rate;
+            
+            document.getElementById('cryptoAmount').textContent = `${cryptoAmount.toFixed(8)} ${data.symbol}`;
+        }
+
+        function copyAddress() {
+            const address = document.getElementById('cryptoAddress').textContent;
+            navigator.clipboard.writeText(address);
+            showToast('✅ Адрес скопирован', 'success');
+        }
+
+        function processPayment() {
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const data = cryptoData[selectedCrypto];
+            
+            if (amount < data.minDeposit) {
+                showToast(`❌ Минимальный депозит $${data.minDeposit}`, 'warning');
+                return;
             }
             
-            return response;
+            showToast(`⏳ Ожидание платежа...`, 'warning');
+            
+            // Simulate payment check
+            setTimeout(() => {
+                const cryptoAmount = amount / data.rate;
+                userData.balance += amount;
+                userData.btcBalance += selectedCrypto === 'btc' ? cryptoAmount : 0;
+                userData.ethBalance += selectedCrypto === 'eth' ? cryptoAmount : 0;
+                userData.usdtBalance += selectedCrypto === 'usdt' ? amount : 0;
+                
+                // Add transaction
+                transactions.unshift({
+                    type: 'deposit',
+                    crypto: data.symbol,
+                    amount: amount,
+                    cryptoAmount: cryptoAmount,
+                    status: 'completed',
+                    date: new Date().toLocaleString()
+                });
+                
+                updateUI();
+                loadTransactionHistory();
+                showToast(`✅ Депозит $${amount} зачислен!`, 'success');
+            }, 3000);
+        }
+
+        function processWithdraw() {
+            const address = document.getElementById('withdrawAddress').value;
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const data = cryptoData[selectedWithdrawCrypto];
+            
+            if (!address) {
+                showToast('❌ Введите адрес кошелька', 'warning');
+                return;
+            }
+            
+            if (amount < data.minWithdraw) {
+                showToast(`❌ Минимальный вывод $${data.minWithdraw}`, 'warning');
+                return;
+            }
+            
+            if (amount > userData.balance) {
+                showToast('❌ Недостаточно средств', 'warning');
+                return;
+            }
+            
+            userData.balance -= amount;
+            
+            transactions.unshift({
+                type: 'withdraw',
+                crypto: data.symbol,
+                amount: amount,
+                address: address,
+                status: 'pending',
+                date: new Date().toLocaleString()
+            });
+            
+            updateUI();
+            loadTransactionHistory();
+            showToast(`✅ Заявка на вывод создана`, 'success');
+        }
+
+        function loadTransactionHistory() {
+            const container = document.getElementById('transactionHistory');
+            
+            if (transactions.length === 0) {
+                container.innerHTML = '<div style="color: var(--text-secondary); text-align: center; padding: 20px;">Нет транзакций</div>';
+                return;
+            }
+            
+            let html = '';
+            transactions.slice(0, 5).forEach(tx => {
+                const color = tx.type === 'deposit' ? 'var(--success)' : 'var(--warning)';
+                const icon = tx.type === 'deposit' ? '↓' : '↑';
+                
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border);">
+                        <div>
+                            <span style="color: ${color};">${icon} ${tx.type === 'deposit' ? 'Депозит' : 'Вывод'}</span>
+                            <div style="font-size: 11px; color: var(--text-secondary);">${tx.date}</div>
+                        </div>
+                        <div>
+                            <span style="font-family: 'JetBrains Mono'; color: ${color};">${tx.type === 'deposit' ? '+' : '-'}$${tx.amount}</span>
+                            <div style="font-size: 10px; text-align: right;">${tx.crypto}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function showDepositModal() {
+            switchScreen('wallet');
         }
 
         // ==================== TIMER ====================
@@ -977,6 +1580,7 @@
                 // Start game locally
                 userData.balance -= bet;
                 userData.games++;
+                userData.crashGames++;
                 updateUI();
 
                 crashGame.isPlaying = true;
@@ -1011,6 +1615,10 @@
             userData.balance += winAmount;
             userData.wins++;
             userData.profit += winAmount - crashGame.betAmount;
+            
+            if (crashGame.currentMultiplier > userData.bestMultiplier) {
+                userData.bestMultiplier = crashGame.currentMultiplier;
+            }
             
             crashGame.isPlaying = false;
             crashGame.gameState = 'cashed';
@@ -1051,6 +1659,8 @@
         }
 
         // ==================== REAL PLAYERS LIST ====================
+        let activePlayers = [];
+
         function addPlayer(name, bet, multiplier, avatar) {
             const existingIndex = activePlayers.findIndex(p => p.name === name);
             
@@ -1137,6 +1747,7 @@
 
                 userData.balance -= bet;
                 userData.games++;
+                userData.minesGames++;
                 updateUI();
 
                 minesGame.isActive = true;
@@ -1228,11 +1839,37 @@
             userData.wins++;
             userData.profit += winAmount - minesGame.betAmount;
             
+            if (minesGame.multiplier > userData.bestMultiplier) {
+                userData.bestMultiplier = minesGame.multiplier;
+            }
+            
             minesGame.isActive = false;
             document.getElementById('minesAction').textContent = 'START GAME';
             updateUI();
             
             showToast('💰 Выигрыш: $' + winAmount.toFixed(2), 'success');
+        }
+
+        // ==================== SEND GAME ACTION TO BOT ====================
+        async function sendGameAction(action, data) {
+            const message = {
+                action: action,
+                ...data,
+                userId: userData.id,
+                username: userData.username,
+                timestamp: Date.now()
+            };
+            
+            console.log('Sending to bot:', message);
+            
+            const response = await sendToBot(message);
+            
+            if (response && response.type === 'balance_updated') {
+                userData.balance = response.balance;
+                updateUI();
+            }
+            
+            return response;
         }
 
         // ==================== TOAST ====================
@@ -1260,9 +1897,15 @@
                 document.getElementById('minesScreen').classList.add('active');
                 document.querySelectorAll('.nav-btn')[1].classList.add('active');
                 initMinesGrid();
+            } else if (screen === 'wallet') {
+                document.getElementById('walletScreen').classList.add('active');
+                document.querySelectorAll('.nav-btn')[2].classList.add('active');
+                // Reset to deposit tab
+                switchPaymentTab('deposit');
+                selectCrypto('btc');
             } else if (screen === 'profile') {
                 document.getElementById('profileScreen').classList.add('active');
-                document.querySelectorAll('.nav-btn')[2].classList.add('active');
+                document.querySelectorAll('.nav-btn')[3].classList.add('active');
             }
         }
 
@@ -1274,6 +1917,14 @@
                 ? Math.round((userData.wins / userData.games) * 100) + '%' 
                 : '0%';
             document.getElementById('profileProfit').textContent = userData.profit.toFixed(2);
+            
+            document.getElementById('crashStats').textContent = userData.crashGames + ' игр';
+            document.getElementById('minesStats').textContent = userData.minesGames + ' игр';
+            document.getElementById('bestMultiplier').textContent = userData.bestMultiplier.toFixed(2) + 'x';
+            
+            document.getElementById('btcBalance').textContent = userData.btcBalance.toFixed(8);
+            document.getElementById('ethBalance').textContent = userData.ethBalance.toFixed(8);
+            document.getElementById('usdtBalance').textContent = userData.usdtBalance.toFixed(2);
         }
 
         // ==================== INIT ====================
@@ -1282,6 +1933,11 @@
             updateCrashGame();
             updateUI();
             startTimer();
+            
+            // Add some sample players
+            addPlayer('CryptoKing', 25.50, 2.35, null);
+            addPlayer('BitcoinWhale', 100.00, 1.50, null);
+            addPlayer('LuckyPlayer', 5.75, 0, null);
             
             console.log('App initialized');
         };
